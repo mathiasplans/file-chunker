@@ -23,8 +23,8 @@ struct chunk {
    * when the memory region is deallocated.
    * @param place pointer to the memory region with the chunk data
    */
-  static chunk* at(void *place) {
-    return new(place) chunk();
+  static chunk &at(void *place) {
+    return *new(place) chunk();
   };
 };
 
@@ -151,6 +151,7 @@ private:
   size_t chunk_size;
   pagemap *pm;
   size_t current_read_index;
+  size_t read_size;
 
   // default constructor is forbidden
   chunker() = delete;
@@ -179,6 +180,12 @@ public:
    * @param b output chunk that was read from the file stream
    */
   chunker& operator>>(chunk &b);
+
+  /**
+   * Get the size of the last chunk
+   * that was acquited with >>
+   */
+  size_t get_chunk_size();
 
   /**
    * Return if all chunks are processed

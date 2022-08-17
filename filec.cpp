@@ -175,14 +175,14 @@ chunker &chunker::operator<<(const chunk &b) {
 chunker &chunker::operator>>(chunk &b) {
   this->fstream.seekg(this->start + this->current_read_index * this->chunk_size);
 
-  size_t read_size = this->chunk_size;
+  this->read_size = this->chunk_size;
 
   // If it is the last chunk, the read size migth be different
   if (this->current_read_index == this->pm->get_chunk_count() - 1)
-    read_size = this->pm->get_last_chunk_size();
+    this->read_size = this->pm->get_last_chunk_size();
 
   // Read from the file
-  this->fstream.read(reinterpret_cast<char *>(b.data), read_size);
+  this->fstream.read(reinterpret_cast<char *>(b.data), this->read_size);
 
   // Set the chunk index
   b.chunk_id = this->current_read_index;
@@ -192,6 +192,10 @@ chunker &chunker::operator>>(chunk &b) {
   this->current_read_index = this->pm->first_missing();
 
   return *this;
+}
+
+size_t chunker::get_chunk_size() {
+  return this->read_size + sizeof(uint16_t);
 }
 
 bool chunker::complete() {
