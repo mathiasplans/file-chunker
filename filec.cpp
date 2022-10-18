@@ -156,6 +156,7 @@ chunker::~chunker() {
 }
 
 chunker &chunker::operator<<(const chunk &b) {
+  this->fstream.clear();
   this->fstream.seekp(this->start + b.chunk_id * this->chunk_size);
 
   size_t write_size = this->chunk_size;
@@ -173,6 +174,7 @@ chunker &chunker::operator<<(const chunk &b) {
 }
 
 chunker &chunker::operator>>(chunk &b) {
+  this->fstream.clear();
   this->fstream.seekg(this->start + this->current_read_index * this->chunk_size);
 
   this->read_size = this->chunk_size;
