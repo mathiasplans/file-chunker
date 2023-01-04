@@ -26,18 +26,19 @@ int main() {
   clientfile.open("client.txt", std::ios::binary | std::ios::ate | std::ios::out);
   filec::chunker cl = filec::chunker(clientfile, 0, fsize, CHUNK_SIZE);
 
+  filec::chunk *b = filec::chunk::create(CHUNK_SIZE);
+
   // Let client read from server
   while (true) {
     // Client sends fread for each chunk
     while(!serv.complete()) {
-      filec::chunk b;
-      serv >> b;
+      serv >> *b;
 
       // 50-50 chance of discarding a packet
       if (!(rand() & 0b1))
         continue;
 
-      cl << b;
+      cl << *b;
     }
 
     // If all chunks have been read, break
