@@ -15,6 +15,17 @@ namespace filec {
  * external sources, such as SPI or I2C data packets.
  */
 struct chunk {
+protected:
+  // It is not safe to create a chunk in stack, because
+  // it may cause stack corruption due to incorrect
+  // memory management
+  chunk() {
+    // pass, we do not want to "re"-initialize the
+    // fields when using *at(void *) method.
+    // For this reason, we can not set it to default.
+  };
+
+public:
   uint16_t chunk_id;
   uint8_t data[1];
 
@@ -24,9 +35,17 @@ struct chunk {
    * when the memory region is deallocated.
    * @param place pointer to the memory region with the chunk data
    */
-  static chunk* at(void *place) {
+  static chunk *at(void *place) {
     return new(place) chunk();
   };
+
+  /**
+   * Allocates space for a chunk
+   */
+  static chunk *create(size_t data_size) {
+    uint8_t *buf = new uint8_t[sizeof(chunk) - 1 + data_size];
+    return chunk::at(buf);
+  }
 };
 
 /**
@@ -165,6 +184,7 @@ private:
   size_t chunk_size;
   pagemap<T> *pm;
   size_t current_read_index;
+  size_t read_size;
 
   // default constructor is forbidden
   chunker() = delete;
@@ -195,6 +215,12 @@ public:
   chunker& operator>>(chunk &b);
 
   /**
+   * Get the size of the last chunk
+   * that was acquired with >>
+   */
+  size_t get_chunk_size();
+
+  /**
    * Return if all chunks are processed
    */
   bool complete();
@@ -202,7 +228,7 @@ public:
   /**
    * Get the raw byte array of the pagemap
    */
-  uint8_t* get_pagemap();
+  uint8_t *get_pagemap();
 
   /**
    * Get the length of the pagemap in bytes
