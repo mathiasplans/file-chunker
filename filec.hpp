@@ -1,4 +1,5 @@
 #include <fstream>
+#include <concepts>
 
 namespace filec {
 
@@ -32,6 +33,7 @@ struct chunk {
  * Bitmap for keeping track of already sent/received
  * chunks by the the chunker
  */
+template <std::unsigned_integral T = uint8_t>
 class pagemap {
 private:
   size_t size;
@@ -42,8 +44,13 @@ private:
   size_t last_chunk_size;
   size_t last_data_size;
   size_t current_ui;
-  uintmax_t last_mask;
-  uintmax_t *bits;
+  T last_mask;
+  T *bits;
+
+  const uint8_t T_bits = sizeof(T) * 8;
+  const uint8_t min_bit = T(1);
+  const uint8_t max_bit = min_bit << (T_bits - 1);
+  const T max = ~T(0);
 
   // Update the upper index by starting
   // from the current location
@@ -55,6 +62,12 @@ private:
 
   // Default constructor is forbidden
   pagemap() = delete;
+
+  size_t upper_index(size_t index);
+
+  size_t lower_index(size_t index);
+
+  size_t li_search(T cell);
 
 public:
   /**
@@ -143,13 +156,14 @@ public:
 /**
  * Chunking and merging object
  */
+template <std::unsigned_integral T = uint8_t>
 class chunker {
 private:
   std::fstream &fstream;
   size_t start;
   size_t size;
   size_t chunk_size;
-  pagemap *pm;
+  pagemap<T> *pm;
   size_t current_read_index;
 
   // default constructor is forbidden
