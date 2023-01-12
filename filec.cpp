@@ -109,8 +109,13 @@ void pagemap<T>::set(const uint8_t *data) {
 }
 
 template <std::unsigned_integral T>
-bool pagemap<T>::operator[](size_t index) {
+bool pagemap<T>::at(size_t index) {
   return (this->bits[this->upper_index(index)] >> this->lower_index(index)) & 1;
+}
+
+template <std::unsigned_integral T>
+bool pagemap<T>::operator[](size_t index) {
+  return this->at(index);
 }
 
 template <std::unsigned_integral T>
@@ -170,6 +175,9 @@ chunker<T>::~chunker() {
 
 template <std::unsigned_integral T>
 chunker<T> &chunker<T>::operator<<(const chunk &b) {
+  if (this->pm->at(b.chunk_id))
+    return *this;
+
   this->fstream.clear();
   this->fstream.seekp(this->start + b.chunk_id * this->chunk_size);
 
