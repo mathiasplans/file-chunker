@@ -119,6 +119,7 @@ public:
    */
   void set(const uint8_t *data);
 
+
   /**
    * Get the status of the chunk
    * by its index. If true is returned,
@@ -127,6 +128,7 @@ public:
    * processing queue.
    * @param index chunk ID
    */
+  bool at(size_t index);
   bool operator[](size_t index);
 
   /**
