@@ -29,10 +29,10 @@ size_t pagemap<T>::lower_index(size_t index) {
 
 template <std::unsigned_integral T>
 size_t pagemap<T>::li_search(T cell) {
-  uintmax_t wm = cell;
+  T wm = cell;
   size_t msize = this->T_bits / 2;
-  uintmax_t mask = this->max >> msize;
-  uintmax_t conj = 0;
+  T mask = this->max >> msize;
+  T conj = 0;
   size_t index = 0;
 
   while (wm && msize) {
