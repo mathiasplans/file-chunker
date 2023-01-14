@@ -15,6 +15,9 @@ void pagemap<T>::update_current_ui(size_t start_index) {
     if (this->bits[this->current_ui] != this->max)
       break;
   }
+
+  // Prevent overflow
+  this->current_ui -= (this->current_ui >= this->data_size) * (this->current_ui - this->data_size + 1);
 }
 
 template <std::unsigned_integral T>
